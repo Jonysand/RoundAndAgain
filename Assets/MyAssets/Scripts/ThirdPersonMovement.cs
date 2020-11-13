@@ -9,9 +9,9 @@ public class ThirdPersonMovement : NetworkBehaviour
 {
     // Movement
     public CharacterController controller;
-    public float speed = 6f;
+    public float speed = 3f;
     [SerializeField]
-    private float turnSmoothTime = 0.2f;
+    private float turnSmoothTime = 0.1f;
     float turnSmoothVelocity;
     [SerializeField]
     Transform cam;
@@ -24,7 +24,7 @@ public class ThirdPersonMovement : NetworkBehaviour
     int isRunnningHash;
     float velocity = 0f;
     [SerializeField]
-    private float animationAcc = 0.001f;
+    private float animationAcc = 0.1f;
     int isMovingHash;
     int velocityHash;
 
