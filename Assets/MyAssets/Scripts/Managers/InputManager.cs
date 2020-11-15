@@ -12,6 +12,12 @@ public class InputManager : MonoBehaviour
     }
     PlayerControls playerControls;
 
+    // -----------
+    // InputAssets
+    // -----------
+    [SerializeField]
+    InteractionInputData interactionInputData = null;
+
     private void Awake() {
         if(_instance != null && _instance != this){
             Destroy(this.gameObject);
@@ -20,6 +26,23 @@ public class InputManager : MonoBehaviour
             _instance = this;
         }
         playerControls = new PlayerControls();
+        
+        // ----------------------
+        // interaction input init
+        // ----------------------
+        playerControls.Player.Interact.performed += ctx => {
+            interactionInputData.InteractedClicked = true;
+            interactionInputData.InteractedReleased = false;
+        };
+        playerControls.Player.Interact.canceled += ctx => {
+            interactionInputData.InteractedReleased = true;
+            interactionInputData.InteractedClicked = false;
+        };
+    }
+
+    public bool clicked = false;
+    private void Update() {
+        clicked = interactionInputData.InteractedClicked;
     }
 
     private void OnEnable() {
@@ -49,5 +72,14 @@ public class InputManager : MonoBehaviour
 
     public bool LeftMouseClicked(){
         return playerControls.UI.LeftClick.triggered;
+    }
+
+    public bool InteractedTriggered(){
+        // return interactionInputData.InteractedClicked;
+        return playerControls.Player.Interact.triggered;
+    }
+
+    public bool InteractedReleased(){
+        return interactionInputData.InteractedReleased;
     }
 }

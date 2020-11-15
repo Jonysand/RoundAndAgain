@@ -13,7 +13,8 @@ public class FirstPersonContoller : NetworkBehaviour
     private CharacterController controller;
     private Vector3 playerVelocity;
     [SerializeField]
-    private float playerSpeed = 2.0f;
+    float playerSpeed = 2.0f;
+    float runningScaler = 2.0f;
     InputManager inputManager;
     Transform camTransform;
 
@@ -22,9 +23,9 @@ public class FirstPersonContoller : NetworkBehaviour
     // ---------
     Animator animator;
     int isRunnningHash;
-    float velocity = 0f;
+    // float velocity = 0f;
     [SerializeField]
-    private float animationAcc = 0.1f;
+    // private float animationAcc = 0.1f;
     int isMovingHash;
     int velocityHash;
     int velocityXHash;
@@ -44,6 +45,7 @@ public class FirstPersonContoller : NetworkBehaviour
         GetComponentInChildren<CinemachineVirtualCamera>().enabled = true;
         GetComponentInChildren<AudioListener>().enabled = true;
         GetComponentInChildren<AudioSource>().enabled = false;
+        GetComponent<InteractionController>().enabled = true;
     }
 
     private void Start()
@@ -70,24 +72,9 @@ public class FirstPersonContoller : NetworkBehaviour
         // ---------
         // animation
         // ---------
-        // if(movement.magnitude > 0){
-        //     animator.SetBool(isMovingHash, true);
-        //     if(inputManager.isRun()) velocity += animationAcc;
-        //     else velocity -= animationAcc;
-        //     if(velocity > 1.0f) velocity = 1.0f;
-        //     if(velocity < 0.0f) velocity = 0.0f;
-        // }
-        // else{
-        //     velocity -= animationAcc;
-        //     if(velocity<0.0f) velocity = 0.0f;
-        //     animator.SetBool(isMovingHash, false);
-        // }
-        // animator.SetFloat(velocityHash, velocity);
-        // controller.Move(move * Time.deltaTime * playerSpeed * (1f+0.5f * velocity));
-
         if(movement.magnitude > 0){
             animator.SetBool(isMovingHash, true);
-            if(inputManager.isRun()) move *= 1.5f;
+            if(inputManager.isRun()) move *= runningScaler;
         }
         else{
             animator.SetBool(isMovingHash, false);
@@ -101,12 +88,13 @@ public class FirstPersonContoller : NetworkBehaviour
         // cursor
         // ------
         if(inputManager.ShowMenu()){
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-        }
-        if(inputManager.LeftMouseClicked()){
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
+            if(Cursor.visible == false){
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+            }else{
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = true;
+            }
         }
     }
 }

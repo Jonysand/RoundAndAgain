@@ -1,4 +1,4 @@
-// GENERATED AUTOMATICALLY FROM 'Assets/MyAssets/Scripts/PlayerControls.inputactions'
+// GENERATED AUTOMATICALLY FROM 'Assets/MyAssets/Scripts/PlayerControl/PlayerControls.inputactions'
 
 using System;
 using System.Collections;
@@ -39,7 +39,7 @@ public class @PlayerControls : IInputActionCollection, IDisposable
                     ""type"": ""Button"",
                     ""id"": ""2525a480-8f7f-4b2a-8a74-237541849110"",
                     ""expectedControlType"": ""Button"",
-                    ""processors"": ""Scale"",
+                    ""processors"": """",
                     ""interactions"": """"
                 },
                 {
@@ -48,7 +48,7 @@ public class @PlayerControls : IInputActionCollection, IDisposable
                     ""id"": ""a4ce4adb-c53f-4942-8beb-bad40fec1169"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
-                    ""interactions"": ""Hold""
+                    ""interactions"": ""Press(behavior=2)""
                 }
             ],
             ""bindings"": [
