@@ -89,7 +89,7 @@ namespace Mirror
                 {
                     manager.StartClient();
                 }
-                // manager.networkAddress = GUILayout.TextField(manager.networkAddress);
+                manager.networkAddress = GUILayout.TextField(manager.networkAddress);
                 GUILayout.EndHorizontal();
 
                 // Server Only
@@ -106,8 +106,7 @@ namespace Mirror
             else
             {
                 // Connecting
-                // GUILayout.Label("Connecting to " + manager.networkAddress + "..");
-                GUILayout.Label("Connecting to the server ... ");
+                GUILayout.Label("Connecting to " + manager.networkAddress + "..");
                 if (GUILayout.Button("Cancel Connection Attempt"))
                 {
                     manager.StopClient();
@@ -124,8 +123,7 @@ namespace Mirror
             }
             if (NetworkClient.isConnected)
             {
-                // GUILayout.Label("Client: address=" + manager.networkAddress);
-                GUILayout.Label("Client connected");
+                GUILayout.Label("Client: address=" + manager.networkAddress);
             }
         }
 

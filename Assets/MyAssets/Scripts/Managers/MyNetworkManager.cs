@@ -7,33 +7,28 @@ using Cinemachine;
 
 public class MyNetworkManager : NetworkManager
 {
+    
     public override void OnStartClient()
     {
         base.OnStartClient();
         // playerPrefab.GetComponentInChildren<CinemachineFreeLook>().enabled = true;
         // playerPrefab.GetComponentInChildren<CinemachineCollider>().enabled = true;
     }
-
-    public override void OnStartHost()
-    {
-        base.OnStartHost();
-        Debug.Log("Host Started");
-    }
-
-    public override void OnStopServer()
-    {
-        base.OnStopServer();
-        Debug.Log("Server Stopped");
-    }
-
-    public override void OnStartServer()
-    {
-        base.OnStartServer();
-        Debug.Log("Server Started");
-    }
     public override void OnServerReady(NetworkConnection conn)
     {
         base.OnServerReady(conn);
-        Debug.Log("Server Ready: " + conn.address + ";");
+        
+        // GameManager.Instance.spawnedPlayerID += 1;
+    }
+
+    public override void OnServerAddPlayer(NetworkConnection conn)
+    {
+        base.OnServerAddPlayer(conn);
+        Debug.Log(GameObject.FindGameObjectsWithTag("Player").Length);
+    }
+    public override void OnServerDisconnect(NetworkConnection conn)
+    {
+        base.OnServerDisconnect(conn);
+        Debug.Log(GameObject.FindGameObjectsWithTag("Player").Length);
     }
 }

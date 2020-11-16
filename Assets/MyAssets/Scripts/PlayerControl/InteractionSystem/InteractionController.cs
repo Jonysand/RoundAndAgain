@@ -31,7 +31,7 @@ public class InteractionController : MonoBehaviour
     }
 
     void CheckForInteractable(){
-        Ray _ray = new Ray(m_cam.transform.position, m_cam.transform.forward);
+        Ray _ray = new Ray(Camera.main.transform.position, m_cam.transform.forward);
         RaycastHit _hitInfo;
 
         bool _hitSomething = Physics.SphereCast(_ray, raySphereRadius, out _hitInfo, rayDistance, interactableLayer);
