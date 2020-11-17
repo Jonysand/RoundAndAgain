@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Mirror;
 
-public class InteractableBase : MonoBehaviour, IInteractable
+public class InteractableBase : NetworkBehaviour, IInteractable
 {
     [Header("Interactable Settings")]
     [SerializeField] float holdDuration = 0;

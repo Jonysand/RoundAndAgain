@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cinemachine;
 
 public class InputManager : MonoBehaviour
 {
@@ -38,11 +39,6 @@ public class InputManager : MonoBehaviour
             interactionInputData.InteractedReleased = true;
             interactionInputData.InteractedClicked = false;
         };
-    }
-
-    public bool clicked = false;
-    private void Update() {
-        clicked = interactionInputData.InteractedClicked;
     }
 
     private void OnEnable() {

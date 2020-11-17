@@ -18,6 +18,7 @@ public class FirstPersonContoller : NetworkBehaviour
     float runningScaler = 2.0f;
     InputManager inputManager;
     Transform camTransform;
+    CinemachineVirtualCamera virtualCamera;
 
     // ---------
     // Animation
@@ -47,11 +48,15 @@ public class FirstPersonContoller : NetworkBehaviour
         velocityXHash = Animator.StringToHash("VelocityX");
         velocityYHash = Animator.StringToHash("VelocityY");
         IdentityColor = GameObject.FindGameObjectWithTag("Identity").GetComponent<Image>();
+        controller = GetComponent<CharacterController>();
+        inputManager = InputManager.Instance;
+        camTransform = Camera.main.transform;
     }
 
     void LocalPlayerInit(){
         GetComponentInChildren<CinemachinePOVExtension>().enabled = true;
-        GetComponentInChildren<CinemachineVirtualCamera>().enabled = true;
+        virtualCamera = GetComponentInChildren<CinemachineVirtualCamera>();
+        virtualCamera.enabled = true;
         GetComponentInChildren<AudioListener>().enabled = true;
         GetComponentInChildren<AudioSource>().enabled = false;
         GetComponent<InteractionController>().enabled = true;
@@ -61,21 +66,40 @@ public class FirstPersonContoller : NetworkBehaviour
         GetComponentInChildren<AudioSource>().enabled = false;
         gameObject.layer = 10;
         gameObject.tag = "Admin";
-        avatarMesh.SetActive(false);
+        if(isLocalPlayer){
+            avatarMesh.SetActive(false);
+        }
+    }
+
+    void SyncAllPlayers(){
+        GameManager.Instance.Players = GameObject.FindGameObjectsWithTag("Player");
+        // players full
+        if(GameManager.Instance.Players.Length >= GameManager.Instance.MatList.Count) isAdmin.isOn = true;
+        else{
+            for (int i = 0; i < GameManager.Instance.Players.Length; i++){
+                // sync material
+                Material mat = GameManager.Instance.MatList[i];
+                GameManager.Instance.Players[i].GetComponentInChildren<SkinnedMeshRenderer>().material = mat;
+            }
+        }
     }
 
     private void Start()
     {
-        controller = GetComponent<CharacterController>();
-        inputManager = InputManager.Instance;
-        camTransform = Camera.main.transform;
-        Material mat = GameManager.Instance.MatList[GameObject.FindGameObjectsWithTag("Player").Length-1];
-        GetComponentInChildren<SkinnedMeshRenderer>().material = mat;
-        if(isLocalPlayer){
+        // ---------------
+        // synchronization
+        // ---------------
+        SyncAllPlayers();
+        if(isLocalPlayer)
+        {
             LocalPlayerInit();
-            IdentityColor.color = mat.GetColor("_BaseColor");
+            IdentityColor.color = GetComponentInChildren<SkinnedMeshRenderer>().material.GetColor("_BaseColor");
         }
         if(isAdmin.isOn) InitAdmin();
+
+        // -----------
+        // Hide Cursor
+        // -----------
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
@@ -90,7 +114,8 @@ public class FirstPersonContoller : NetworkBehaviour
         Vector3 move = new Vector3(movement.x, 0f, movement.y);
         move = Camera.main.transform.forward * movement.y + Camera.main.transform.right * movement.x;
         move.y = 0f;
-        transform.right = Camera.main.transform.right;
+        // transform.GetChild(0).right = Camera.main.transform.right;
+        // transform.right = Camera.main.transform.right;
 
         // ---------
         // animation
@@ -114,9 +139,11 @@ public class FirstPersonContoller : NetworkBehaviour
             if(Cursor.visible == false){
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
+                virtualCamera.enabled = false;
             }else{
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible = false;
+                virtualCamera.enabled = true;
             }
         }
     }

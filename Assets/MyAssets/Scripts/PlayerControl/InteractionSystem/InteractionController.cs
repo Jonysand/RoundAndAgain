@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Mirror;
 
-public class InteractionController : MonoBehaviour
+public class InteractionController : NetworkBehaviour
 {
     [Header("Data")]
     public InteractionInputData interactionInputData;
@@ -74,13 +75,20 @@ public class InteractionController : MonoBehaviour
                 float heldPercent = m_holderTimer / interactionData.Interactable.HoldDuration;
                 uiPanel.UpdateProgressBar(heldPercent);
                 if(heldPercent > 1f){
-                    interactionData.Interact();
+                    StartInteract(interactionData.Interactable.gameObject);
+                    interactionData.ResetData();
                     m_interacting = false;
                 }
             }else{
-                interactionData.Interact();
+                StartInteract(interactionData.Interactable.gameObject);
+                interactionData.ResetData();
                 m_interacting = false;
             }
         }
+    }
+
+    [Command]
+    void StartInteract(GameObject obj){
+        obj.GetComponent<InteractableBase>().OnInteract();
     }
 }

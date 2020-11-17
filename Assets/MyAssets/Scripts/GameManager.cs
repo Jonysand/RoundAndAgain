@@ -17,9 +17,9 @@ public class GameManager : NetworkBehaviour
     [Header("Night Time")]
     float NightTimer = 0f;
     float NightDuration = 60f;
-    [SyncVar]public int spawnedPlayerID = 0;
     [SyncVar]public int KillerID = 0;
     public List<Material> MatList;
+    public GameObject[] Players;
 
     private static GameManager _instance;
     public static GameManager Instance{
