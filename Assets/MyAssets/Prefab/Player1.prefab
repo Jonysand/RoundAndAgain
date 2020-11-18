@@ -233,6 +233,7 @@ MonoBehaviour:
   horizontalSpeed: 10
   verticalSpeed: 10
   clampAngle: 80
+  turnDampingTime: 0.02
 --- !u!1 &6406798049030338454
 GameObject:
   m_ObjectHideFlags: 0
@@ -520,6 +521,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8787ad3aaed848508291978c8ef930c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
   interactionInputData: {fileID: 11400000, guid: 8afc99da83ebc4ea0a079fb81c38eef6,
     type: 2}
   interactionData: {fileID: 11400000, guid: 1a08bc8257f3049b2969989d35b25402, type: 2}

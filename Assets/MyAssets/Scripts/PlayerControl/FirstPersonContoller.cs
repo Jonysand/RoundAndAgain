@@ -17,7 +17,6 @@ public class FirstPersonContoller : NetworkBehaviour
     float playerSpeed = 2.0f;
     float runningScaler = 2.0f;
     InputManager inputManager;
-    Transform camTransform;
     CinemachineVirtualCamera virtualCamera;
 
     // ---------
@@ -38,7 +37,6 @@ public class FirstPersonContoller : NetworkBehaviour
     // Admin
     // -----
     Toggle isAdmin = null;
-    [SerializeField]GameObject avatarMesh = null;
 
     void Awake() {
         animator = GetComponentInChildren<Animator>();
@@ -50,38 +48,6 @@ public class FirstPersonContoller : NetworkBehaviour
         IdentityColor = GameObject.FindGameObjectWithTag("Identity").GetComponent<Image>();
         controller = GetComponent<CharacterController>();
         inputManager = InputManager.Instance;
-        camTransform = Camera.main.transform;
-    }
-
-    void LocalPlayerInit(){
-        GetComponentInChildren<CinemachinePOVExtension>().enabled = true;
-        virtualCamera = GetComponentInChildren<CinemachineVirtualCamera>();
-        virtualCamera.enabled = true;
-        GetComponentInChildren<AudioListener>().enabled = true;
-        GetComponentInChildren<AudioSource>().enabled = false;
-        GetComponent<InteractionController>().enabled = true;
-    }
-
-    void InitAdmin(){
-        GetComponentInChildren<AudioSource>().enabled = false;
-        gameObject.layer = 10;
-        gameObject.tag = "Admin";
-        if(isLocalPlayer){
-            avatarMesh.SetActive(false);
-        }
-    }
-
-    void SyncAllPlayers(){
-        GameManager.Instance.Players = GameObject.FindGameObjectsWithTag("Player");
-        // players full
-        if(GameManager.Instance.Players.Length >= GameManager.Instance.MatList.Count) isAdmin.isOn = true;
-        else{
-            for (int i = 0; i < GameManager.Instance.Players.Length; i++){
-                // sync material
-                Material mat = GameManager.Instance.MatList[i];
-                GameManager.Instance.Players[i].GetComponentInChildren<SkinnedMeshRenderer>().material = mat;
-            }
-        }
     }
 
     private void Start()
@@ -93,9 +59,11 @@ public class FirstPersonContoller : NetworkBehaviour
         if(isLocalPlayer)
         {
             LocalPlayerInit();
-            IdentityColor.color = GetComponentInChildren<SkinnedMeshRenderer>().material.GetColor("_BaseColor");
+            if(isAdmin.isOn){
+                InitAdmin();
+                InitAdminOnServer();
+            }else IdentityColor.color = GetComponentInChildren<SkinnedMeshRenderer>().material.GetColor("_BaseColor");
         }
-        if(isAdmin.isOn) InitAdmin();
 
         // -----------
         // Hide Cursor
@@ -114,8 +82,6 @@ public class FirstPersonContoller : NetworkBehaviour
         Vector3 move = new Vector3(movement.x, 0f, movement.y);
         move = Camera.main.transform.forward * movement.y + Camera.main.transform.right * movement.x;
         move.y = 0f;
-        // transform.GetChild(0).right = Camera.main.transform.right;
-        // transform.right = Camera.main.transform.right;
 
         // ---------
         // animation
@@ -146,5 +112,47 @@ public class FirstPersonContoller : NetworkBehaviour
                 virtualCamera.enabled = true;
             }
         }
+    }
+
+    void LocalPlayerInit(){
+        GetComponentInChildren<CinemachinePOVExtension>().enabled = true;
+        virtualCamera = GetComponentInChildren<CinemachineVirtualCamera>();
+        virtualCamera.enabled = true;
+        GetComponentInChildren<AudioListener>().enabled = true;
+        GetComponentInChildren<AudioSource>().enabled = false;
+        GetComponent<InteractionController>().enabled = true;
+    }
+
+    void InitAdmin(){
+        GetComponentInChildren<AudioSource>().enabled = false;
+        gameObject.layer = 10;
+        gameObject.tag = "Admin";
+        transform.position = virtualCamera.transform.position;
+        transform.localScale = Vector3.zero;
+    }
+
+    [Command]
+    void InitAdminOnServer(){
+        InitAdmin();
+    }
+
+    void SyncAllPlayers(){
+        List<GameObject> PlayerList = new List<GameObject>(GameObject.FindGameObjectsWithTag("Player"));
+        // remove admins
+        for(int i = 0; i < PlayerList.Count;){
+            if (PlayerList[i].transform.localScale == Vector3.zero){
+                PlayerList.RemoveAt(i);
+            }else i++;
+        }
+        // players full
+        if(PlayerList.Count >= GameManager.Instance.MatList.Count) isAdmin.isOn = true;
+        else{
+            for (int i = 0; i < PlayerList.Count; i++){
+                // sync material
+                Material mat = GameManager.Instance.MatList[i];
+                PlayerList[i].GetComponentInChildren<SkinnedMeshRenderer>().material = mat;
+            }
+        }
+        GameManager.Instance.Players = PlayerList;
     }
 }

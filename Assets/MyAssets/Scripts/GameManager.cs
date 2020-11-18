@@ -19,7 +19,7 @@ public class GameManager : NetworkBehaviour
     float NightDuration = 60f;
     [SyncVar]public int KillerID = 0;
     public List<Material> MatList;
-    public GameObject[] Players;
+    public List<GameObject> Players;
 
     private static GameManager _instance;
     public static GameManager Instance{
