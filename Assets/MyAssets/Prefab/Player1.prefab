@@ -508,7 +508,9 @@ MonoBehaviour:
   playerSpeed: 2
   isMovingHash: 0
   IdentityColor: {fileID: 0}
-  avatarMesh: {fileID: 8366265808990257240}
+  minimap: {fileID: 0}
+  minimapSpotPrefab: {fileID: 6268559064872365049, guid: 58845304a8add4233bc0e43dab3526d7,
+    type: 3}
 --- !u!114 &2960759744763615896
 MonoBehaviour:
   m_ObjectHideFlags: 0

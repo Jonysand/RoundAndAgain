@@ -25,22 +25,28 @@ public class FirstPersonContoller : NetworkBehaviour
     Animator animator;
     int isRunnningHash;
     // float velocity = 0f;
-    [SerializeField]
-    // private float animationAcc = 0.1f;
     int isMovingHash;
     int velocityHash;
     int velocityXHash;
     int velocityYHash;
-    [SerializeField] Image IdentityColor;
+    public Image IdentityColor;
 
-    // -----
-    // Admin
-    // -----
-    Toggle isAdmin = null;
+    // ------
+    // Player
+    // ------
+    Toggle isAdminUI = null;
+    public bool isAdmin = false;
+    GameObject minimap = null;
+    public GameObject miniMapSpot = null;
+    float MapRealRatio = 39f/5f;
+    Material mat;
+
 
     void Awake() {
         animator = GetComponentInChildren<Animator>();
-        isAdmin = GameObject.FindGameObjectWithTag("AdminToggle").GetComponent<Toggle>();
+        isAdminUI = GameObject.FindGameObjectWithTag("AdminToggle").GetComponent<Toggle>();
+        minimap = GameObject.FindGameObjectWithTag("minimap");
+        virtualCamera = GetComponentInChildren<CinemachineVirtualCamera>();
         isMovingHash = Animator.StringToHash("isMoving");
         velocityHash = Animator.StringToHash("Velocity");
         velocityXHash = Animator.StringToHash("VelocityX");
@@ -48,6 +54,7 @@ public class FirstPersonContoller : NetworkBehaviour
         IdentityColor = GameObject.FindGameObjectWithTag("Identity").GetComponent<Image>();
         controller = GetComponent<CharacterController>();
         inputManager = InputManager.Instance;
+        mat = GetComponentInChildren<SkinnedMeshRenderer>().material;
     }
 
     private void Start()
@@ -56,13 +63,13 @@ public class FirstPersonContoller : NetworkBehaviour
         // synchronization
         // ---------------
         SyncAllPlayers();
-        if(isLocalPlayer)
-        {
+        if(!isAdmin) isAdmin = isAdminUI.isOn;
+        if(isLocalPlayer){
             LocalPlayerInit();
-            if(isAdmin.isOn){
-                InitAdmin();
-                InitAdminOnServer();
-            }else IdentityColor.color = GetComponentInChildren<SkinnedMeshRenderer>().material.GetColor("_BaseColor");
+        }
+        if(isAdmin){
+            InitAdmin();
+            InitAdminOnServer();
         }
 
         // -----------
@@ -74,6 +81,16 @@ public class FirstPersonContoller : NetworkBehaviour
 
     void Update()
     {
+        // -------
+        // MiniMap
+        // -------
+        if(miniMapSpot!=null && minimap.activeInHierarchy){
+            SyncMinimap(miniMapSpot);
+        }
+
+        // ---------------------
+        // Local Player Specific
+        // ---------------------
         if(!isLocalPlayer) return;
         // --------
         // movement
@@ -116,7 +133,6 @@ public class FirstPersonContoller : NetworkBehaviour
 
     void LocalPlayerInit(){
         GetComponentInChildren<CinemachinePOVExtension>().enabled = true;
-        virtualCamera = GetComponentInChildren<CinemachineVirtualCamera>();
         virtualCamera.enabled = true;
         GetComponentInChildren<AudioListener>().enabled = true;
         GetComponentInChildren<AudioSource>().enabled = false;
@@ -124,11 +140,14 @@ public class FirstPersonContoller : NetworkBehaviour
     }
 
     void InitAdmin(){
-        GetComponentInChildren<AudioSource>().enabled = false;
         gameObject.layer = 10;
         gameObject.tag = "Admin";
         transform.position = virtualCamera.transform.position;
         transform.localScale = Vector3.zero;
+        miniMapSpot.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0f);
+        IdentityColor.color = new Color(0f, 0f, 0f, 0f);
+        miniMapSpot = null;
+        transform.GetChild(0).gameObject.SetActive(false);
     }
 
     [Command]
@@ -145,14 +164,25 @@ public class FirstPersonContoller : NetworkBehaviour
             }else i++;
         }
         // players full
-        if(PlayerList.Count >= GameManager.Instance.MatList.Count) isAdmin.isOn = true;
+        if(PlayerList.Count >= GameManager.Instance.MatList.Count) isAdmin = true;
         else{
             for (int i = 0; i < PlayerList.Count; i++){
                 // sync material
-                Material mat = GameManager.Instance.MatList[i];
+                mat = GameManager.Instance.MatList[i];
                 PlayerList[i].GetComponentInChildren<SkinnedMeshRenderer>().material = mat;
+                // connect corresponding spots on the minimap
+                GameManager.Instance.MinimapSpots[i].GetComponent<Image>().color = mat.GetColor("_BaseColor");
+                PlayerList[i].GetComponent<FirstPersonContoller>().miniMapSpot = GameManager.Instance.MinimapSpots[i];
+                if(PlayerList[i].GetComponent<FirstPersonContoller>().isLocalPlayer)
+                    PlayerList[i].GetComponent<FirstPersonContoller>().IdentityColor.color = mat.GetColor("_BaseColor");
             }
         }
         GameManager.Instance.Players = PlayerList;
+    }
+    void SyncMinimap(GameObject spot){
+        Vector3 pos = spot.GetComponent<RectTransform>().anchoredPosition;
+        pos.x = transform.position.z * MapRealRatio;
+        pos.y = transform.position.x * -MapRealRatio;
+        miniMapSpot.GetComponent<RectTransform>().anchoredPosition = pos;
     }
 }

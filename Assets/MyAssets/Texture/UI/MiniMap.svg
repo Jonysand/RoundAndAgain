@@ -1,0 +1,15 @@
+<svg width="345" height="247" viewBox="0 0 345 247" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="68.5" y="68.5" width="208" height="110" stroke="#23FF0F"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M103 1H154.2V67.4H135.989V68.4H154.2H155.2V67.4V1V0H154.2H103H102V1V67.4V68.4H103H121.211V67.4H103V1Z" fill="#23FF0F"/>
+<rect x="116.027" y="66" width="25" height="4" fill="#23FF0F"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M103 246H154.2V179.6H135.989V178.6H154.2H155.2V179.6V246V247H154.2H103H102V246V179.6V178.6H103H121.211V179.6H103V246Z" fill="#23FF0F"/>
+<rect width="25" height="4" transform="matrix(1 0 0 -1 116.027 181)" fill="#23FF0F"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M191.027 1H242.227V67.4H224.015V68.4H242.227H243.227V67.4V1V0H242.227H191.027H190.027V1V67.4V68.4H191.027H209.238V67.4H191.027V1Z" fill="#23FF0F"/>
+<rect x="204.053" y="66" width="25" height="4" fill="#23FF0F"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M191.027 246H242.227V179.6H224.015V178.6H242.227H243.227V179.6V246V247H242.227H191.027H190.027V246V179.6V178.6H191.027H209.238V179.6H191.027V246Z" fill="#23FF0F"/>
+<rect width="25" height="4" transform="matrix(1 0 0 -1 204.053 181)" fill="#23FF0F"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M344 151.2L344 100L277.6 100L277.6 118.211L276.6 118.211L276.6 100L276.6 99.0002L277.6 99.0002L344 99.0002L345 99.0002L345 100L345 151.2L345 152.2L344 152.2L277.6 152.2L276.6 152.2L276.6 151.2L276.6 132.989L277.6 132.989L277.6 151.2L344 151.2Z" fill="#23FF0F"/>
+<rect width="25" height="4" transform="matrix(1.19249e-08 -1 -1 -1.19249e-08 279 138.173)" fill="#23FF0F"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M1 151.2L0.999999 100L67.4 100L67.4 118.211L68.4 118.211L68.4 100L68.4 99.0002L67.4 99.0002L0.999999 99.0002L-6.34403e-07 99.0002L-6.22478e-07 100L-1.19249e-08 151.2L0 152.2L1 152.2L67.4 152.2L68.4 152.2L68.4 151.2L68.4 132.989L67.4 132.989L67.4 151.2L1 151.2Z" fill="#23FF0F"/>
+<rect x="66" y="138.173" width="25" height="4" transform="rotate(-90 66 138.173)" fill="#23FF0F"/>
+</svg>

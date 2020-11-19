@@ -20,6 +20,7 @@ public class GameManager : NetworkBehaviour
     [SyncVar]public int KillerID = 0;
     public List<Material> MatList;
     public List<GameObject> Players;
+    public List<GameObject> MinimapSpots;
 
     private static GameManager _instance;
     public static GameManager Instance{
