@@ -30,6 +30,8 @@ public class FirstPersonContoller : NetworkBehaviour
     int velocityXHash;
     int velocityYHash;
     public Image IdentityColor;
+    public Text IdentityText;
+    [SerializeField] BillboardText IdentityLable = null;
 
     // ------
     // Player
@@ -51,7 +53,8 @@ public class FirstPersonContoller : NetworkBehaviour
         velocityHash = Animator.StringToHash("Velocity");
         velocityXHash = Animator.StringToHash("VelocityX");
         velocityYHash = Animator.StringToHash("VelocityY");
-        IdentityColor = GameObject.FindGameObjectWithTag("Identity").GetComponent<Image>();
+        IdentityColor = GameObject.FindGameObjectWithTag("Identity").GetComponentInChildren<Image>();
+        IdentityText = GameObject.FindGameObjectWithTag("Identity").GetComponentInChildren<Text>();
         controller = GetComponent<CharacterController>();
         inputManager = InputManager.Instance;
         mat = GetComponentInChildren<SkinnedMeshRenderer>().material;
@@ -66,12 +69,12 @@ public class FirstPersonContoller : NetworkBehaviour
         if(!isAdmin) isAdmin = isAdminUI.isOn;
         if(isLocalPlayer){
             LocalPlayerInit();
+            if(isAdmin){
+                InitAdmin();
+                InitAdminOnServer();
+            }
         }
-        if(isAdmin){
-            InitAdmin();
-            InitAdminOnServer();
-        }
-
+        
         // -----------
         // Hide Cursor
         // -----------
@@ -86,6 +89,15 @@ public class FirstPersonContoller : NetworkBehaviour
         // -------
         if(miniMapSpot!=null && minimap.activeInHierarchy){
             SyncMinimap(miniMapSpot);
+        }
+
+        // is admin
+        if(transform.localScale == Vector3.zero){
+            IdentityLable.text = "";
+            if(miniMapSpot){
+                miniMapSpot.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0f);
+                miniMapSpot = null;
+            }
         }
 
         // ---------------------
@@ -131,6 +143,13 @@ public class FirstPersonContoller : NetworkBehaviour
         }
     }
 
+    private void OnDestroy() {
+        if(miniMapSpot){
+            miniMapSpot.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0f);
+            miniMapSpot = null;
+        }
+    }
+
     void LocalPlayerInit(){
         GetComponentInChildren<CinemachinePOVExtension>().enabled = true;
         virtualCamera.enabled = true;
@@ -145,7 +164,10 @@ public class FirstPersonContoller : NetworkBehaviour
         transform.position = virtualCamera.transform.position;
         transform.localScale = Vector3.zero;
         miniMapSpot.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0f);
+        miniMapSpot = null;
         IdentityColor.color = new Color(0f, 0f, 0f, 0f);
+        IdentityText.text = "";
+        IdentityLable.text = "";
         miniMapSpot = null;
         transform.GetChild(0).gameObject.SetActive(false);
     }
@@ -173,8 +195,12 @@ public class FirstPersonContoller : NetworkBehaviour
                 // connect corresponding spots on the minimap
                 GameManager.Instance.MinimapSpots[i].GetComponent<Image>().color = mat.GetColor("_BaseColor");
                 PlayerList[i].GetComponent<FirstPersonContoller>().miniMapSpot = GameManager.Instance.MinimapSpots[i];
-                if(PlayerList[i].GetComponent<FirstPersonContoller>().isLocalPlayer)
+                PlayerList[i].GetComponent<FirstPersonContoller>().IdentityLable.text = System.Char.ConvertFromUtf32((65+i)).ToString();
+                // UI update
+                if(PlayerList[i].GetComponent<FirstPersonContoller>().isLocalPlayer){
                     PlayerList[i].GetComponent<FirstPersonContoller>().IdentityColor.color = mat.GetColor("_BaseColor");
+                    PlayerList[i].GetComponent<FirstPersonContoller>().IdentityText.text = System.Char.ConvertFromUtf32((65+i)).ToString();
+                }
             }
         }
         GameManager.Instance.Players = PlayerList;

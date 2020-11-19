@@ -27,6 +27,5 @@ public class InteractableBase : NetworkBehaviour, IInteractable
     }
 
     public virtual void OnInteract(){
-        Debug.Log("INTERACTED: " + gameObject.name);
     }
 }
