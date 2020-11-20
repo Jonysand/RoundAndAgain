@@ -40,7 +40,7 @@ public class FirstPersonContoller : NetworkBehaviour
     public bool isAdmin = false;
     GameObject minimap = null;
     public GameObject miniMapSpot = null;
-    float MapRealRatio = 39f/5f;
+    float MapRealRatio = 242f/26f;
     Material mat;
 
 
