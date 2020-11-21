@@ -11,6 +11,8 @@ TagManager:
   - Identity
   - Admin
   - minimap
+  - AdminControl
+  - MainMenu
   layers:
   - Default
   - TransparentFX

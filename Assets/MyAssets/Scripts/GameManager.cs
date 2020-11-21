@@ -5,7 +5,17 @@ using Mirror;
 using UnityEngine.UI;
 
 public class GameManager : NetworkBehaviour
-{
+{   
+    // -----
+    // Admin
+    // -----
+    // Map Control
+    public ToggleGroup ShowMapToggles = null;
+    public void ShowMap(int playerID){
+        if(playerID < Players.Count)
+            LocalPlayer.GetComponent<FirstPersonContoller>().CommandShowKillerMap(playerID, ShowMapToggles.AnyTogglesOn());
+    }
+
     int State = 0; // 0:Morning; 1:Evening; 2:Night
 
     [Header("Morning Time")]
@@ -20,6 +30,7 @@ public class GameManager : NetworkBehaviour
     [SyncVar]public int KillerID = 0;
     public List<Material> MatList;
     public List<GameObject> Players;
+    public GameObject LocalPlayer = null;
     public List<GameObject> MinimapSpots;
 
     private static GameManager _instance;

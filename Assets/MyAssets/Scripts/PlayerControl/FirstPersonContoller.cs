@@ -32,6 +32,7 @@ public class FirstPersonContoller : NetworkBehaviour
     public Image IdentityColor;
     public Text IdentityText;
     [SerializeField] BillboardText IdentityLable = null;
+    CanvasGroup MainMenu = null;
 
     // ------
     // Player
@@ -42,6 +43,11 @@ public class FirstPersonContoller : NetworkBehaviour
     public GameObject miniMapSpot = null;
     float MapRealRatio = 242f/26f;
     Material mat;
+
+    // -----
+    // Admin
+    // -----
+    
 
 
     void Awake() {
@@ -55,6 +61,7 @@ public class FirstPersonContoller : NetworkBehaviour
         velocityYHash = Animator.StringToHash("VelocityY");
         IdentityColor = GameObject.FindGameObjectWithTag("Identity").GetComponentInChildren<Image>();
         IdentityText = GameObject.FindGameObjectWithTag("Identity").GetComponentInChildren<Text>();
+        MainMenu = GameObject.FindGameObjectWithTag("MainMenu").GetComponentInChildren<CanvasGroup>();
         controller = GetComponent<CharacterController>();
         inputManager = InputManager.Instance;
         mat = GetComponentInChildren<SkinnedMeshRenderer>().material;
@@ -74,12 +81,6 @@ public class FirstPersonContoller : NetworkBehaviour
                 InitAdminOnServer();
             }
         }
-        
-        // -----------
-        // Hide Cursor
-        // -----------
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
     }
 
     void Update()
@@ -135,10 +136,12 @@ public class FirstPersonContoller : NetworkBehaviour
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
                 virtualCamera.enabled = false;
+                SetUIVisible(MainMenu, true);
             }else{
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible = false;
                 virtualCamera.enabled = true;
+                SetUIVisible(MainMenu, false);
             }
         }
     }
@@ -156,6 +159,12 @@ public class FirstPersonContoller : NetworkBehaviour
         GetComponentInChildren<AudioListener>().enabled = true;
         GetComponentInChildren<AudioSource>().enabled = false;
         GetComponent<InteractionController>().enabled = true;
+        minimap.GetComponent<CanvasGroup>().alpha = 0;
+        GameManager.Instance.LocalPlayer = gameObject;
+        // Hide UI
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+        SetUIVisible(MainMenu, false);
     }
 
     void InitAdmin(){
@@ -163,13 +172,17 @@ public class FirstPersonContoller : NetworkBehaviour
         gameObject.tag = "Admin";
         transform.position = virtualCamera.transform.position;
         transform.localScale = Vector3.zero;
-        miniMapSpot.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0f);
-        miniMapSpot = null;
+        if(miniMapSpot){
+            miniMapSpot.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0f);
+            miniMapSpot = null;
+        }
         IdentityColor.color = new Color(0f, 0f, 0f, 0f);
         IdentityText.text = "";
         IdentityLable.text = "";
         miniMapSpot = null;
         transform.GetChild(0).gameObject.SetActive(false);
+        minimap.GetComponent<CanvasGroup>().alpha = 1;
+        SetUIVisible(GameObject.FindGameObjectWithTag("AdminControl").GetComponent<CanvasGroup>(), true);
     }
 
     [Command]
@@ -210,5 +223,30 @@ public class FirstPersonContoller : NetworkBehaviour
         pos.x = transform.position.z * MapRealRatio;
         pos.y = transform.position.x * -MapRealRatio;
         miniMapSpot.GetComponent<RectTransform>().anchoredPosition = pos;
+    }
+
+    [Command]
+    public void CommandShowKillerMap(int playerID, bool isShow){
+        GameManager.Instance.Players[playerID].GetComponent<FirstPersonContoller>().RPCShowKillerMap(isShow);
+    }
+
+    [TargetRpc]
+    public void RPCShowKillerMap(bool isShow){
+        if(isShow)
+            minimap.GetComponent<CanvasGroup>().alpha = 1;
+        else
+            minimap.GetComponent<CanvasGroup>().alpha = 0;
+    }
+
+    void SetUIVisible(CanvasGroup UIgroup, bool show){
+        if(show){
+            UIgroup.alpha = 1;
+            UIgroup.interactable = true;
+            UIgroup.blocksRaycasts = true;
+        }else{
+            UIgroup.alpha = 0;
+            UIgroup.interactable = false;
+            UIgroup.blocksRaycasts = false;
+        }
     }
 }
