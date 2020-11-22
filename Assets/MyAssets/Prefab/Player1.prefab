@@ -98,7 +98,7 @@ MonoBehaviour:
       m_Top: 0
       m_Bottom: 0
     m_Font: {fileID: 0}
-    m_FontSize: 28
+    m_FontSize: 18
     m_FontStyle: 1
     m_Alignment: 4
     m_WordWrap: 0
@@ -404,8 +404,8 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 5
-  MinDistance: 1
-  MaxDistance: 500
+  MinDistance: 0.4
+  MaxDistance: 50
   Pan2D: 0
   rolloffMode: 0
   BypassEffects: 0
@@ -738,7 +738,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 72f4ac2d3453248469a38187341da598, type: 2}
+      objectReference: {fileID: 2100000, guid: 53aba18f357cc42a2822fa071623f69a, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9298df1c0fb6447fca6d3337f165a895, type: 3}
 --- !u!4 &2971725078345615457 stripped

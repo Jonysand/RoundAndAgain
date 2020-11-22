@@ -7,8 +7,10 @@ public class BillboardText : MonoBehaviour
     Camera cam;
     [SerializeField] GUIStyle nameStyle = null;
     public string text = "Test";
+    public bool show = true;
     void OnGUI ()
     {
+        if(!show) return;
         if(!cam) cam = Camera.main;
         if(Vector3.Dot(cam.transform.forward, (transform.position - cam.transform.position)) > 0){
             Vector2 worldPoint = cam.WorldToScreenPoint (transform.position);

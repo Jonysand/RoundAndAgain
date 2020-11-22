@@ -16,6 +16,11 @@ public class GameManager : NetworkBehaviour
             LocalPlayer.GetComponent<FirstPersonContoller>().CommandShowKillerMap(playerID, ShowMapToggles.AnyTogglesOn());
     }
 
+    public Toggle ShowLableToggle = null;
+    public void ShowNames(){
+        LocalPlayer.GetComponent<FirstPersonContoller>().CommandShowLable(ShowLableToggle.isOn);
+    }
+
     int State = 0; // 0:Morning; 1:Evening; 2:Night
 
     [Header("Morning Time")]
@@ -29,6 +34,7 @@ public class GameManager : NetworkBehaviour
     float NightDuration = 60f;
     [SyncVar]public int KillerID = 0;
     public List<Material> MatList;
+    public List<string> NameList;
     public List<GameObject> Players;
     public GameObject LocalPlayer = null;
     public List<GameObject> MinimapSpots;

@@ -31,7 +31,7 @@ public class FirstPersonContoller : NetworkBehaviour
     int velocityYHash;
     public Image IdentityColor;
     public Text IdentityText;
-    [SerializeField] BillboardText IdentityLable = null;
+    public BillboardText IdentityLable = null;
     CanvasGroup MainMenu = null;
 
     // ------
@@ -72,6 +72,7 @@ public class FirstPersonContoller : NetworkBehaviour
         // ---------------
         // synchronization
         // ---------------
+        MainMenu.interactable = false;
         SyncAllPlayers();
         if(!isAdmin) isAdmin = isAdminUI.isOn;
         if(isLocalPlayer){
@@ -202,17 +203,20 @@ public class FirstPersonContoller : NetworkBehaviour
         if(PlayerList.Count >= GameManager.Instance.MatList.Count) isAdmin = true;
         else{
             for (int i = 0; i < PlayerList.Count; i++){
-                // sync material
+                // sync material and name
                 mat = GameManager.Instance.MatList[i];
+                string name = GameManager.Instance.NameList[i];
                 PlayerList[i].GetComponentInChildren<SkinnedMeshRenderer>().material = mat;
                 // connect corresponding spots on the minimap
                 GameManager.Instance.MinimapSpots[i].GetComponent<Image>().color = mat.GetColor("_BaseColor");
                 PlayerList[i].GetComponent<FirstPersonContoller>().miniMapSpot = GameManager.Instance.MinimapSpots[i];
-                PlayerList[i].GetComponent<FirstPersonContoller>().IdentityLable.text = System.Char.ConvertFromUtf32((65+i)).ToString();
+                // PlayerList[i].GetComponent<FirstPersonContoller>().IdentityLable.text = System.Char.ConvertFromUtf32((65+i)).ToString();
+                PlayerList[i].GetComponent<FirstPersonContoller>().IdentityLable.text = name;
                 // UI update
                 if(PlayerList[i].GetComponent<FirstPersonContoller>().isLocalPlayer){
                     PlayerList[i].GetComponent<FirstPersonContoller>().IdentityColor.color = mat.GetColor("_BaseColor");
-                    PlayerList[i].GetComponent<FirstPersonContoller>().IdentityText.text = System.Char.ConvertFromUtf32((65+i)).ToString();
+                    // PlayerList[i].GetComponent<FirstPersonContoller>().IdentityText.text = System.Char.ConvertFromUtf32((65+i)).ToString();
+                    PlayerList[i].GetComponent<FirstPersonContoller>().IdentityText.text = name;
                 }
             }
         }
@@ -225,6 +229,9 @@ public class FirstPersonContoller : NetworkBehaviour
         miniMapSpot.GetComponent<RectTransform>().anchoredPosition = pos;
     }
 
+    // ---------------
+    // Admin Functions
+    // ---------------
     [Command]
     public void CommandShowKillerMap(int playerID, bool isShow){
         GameManager.Instance.Players[playerID].GetComponent<FirstPersonContoller>().RPCShowKillerMap(isShow);
@@ -238,14 +245,23 @@ public class FirstPersonContoller : NetworkBehaviour
             minimap.GetComponent<CanvasGroup>().alpha = 0;
     }
 
+    [Command]
+    public void CommandShowLable(bool isShow){
+        RPCShowLable(isShow);
+    }
+    [ClientRpc]
+    public void RPCShowLable(bool isShow){
+        foreach (GameObject player in GameManager.Instance.Players)
+            player.GetComponent<FirstPersonContoller>().IdentityLable.show = isShow;
+    }
+
+
     void SetUIVisible(CanvasGroup UIgroup, bool show){
         if(show){
             UIgroup.alpha = 1;
-            UIgroup.interactable = true;
             UIgroup.blocksRaycasts = true;
         }else{
             UIgroup.alpha = 0;
-            UIgroup.interactable = false;
             UIgroup.blocksRaycasts = false;
         }
     }
