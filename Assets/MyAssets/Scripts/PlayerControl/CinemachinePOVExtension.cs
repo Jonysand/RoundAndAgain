@@ -19,7 +19,7 @@ public class CinemachinePOVExtension : CinemachineExtension
     }
 
     // smooth turn
-    [SerializeField]float turnDampingTime = 0.02f;
+    [SerializeField]float turnDampingTime = 0.01f;
     float turnX;
     float turnY;
 

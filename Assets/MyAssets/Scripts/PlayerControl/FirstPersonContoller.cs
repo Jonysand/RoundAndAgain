@@ -1,5 +1,4 @@
-﻿#pragma warning disable 0649
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
@@ -38,11 +37,10 @@ public class FirstPersonContoller : NetworkBehaviour
     // Player
     // ------
     Toggle isAdminUI = null;
-    public bool isAdmin = false;
     GameObject minimap = null;
     public GameObject miniMapSpot = null;
     float MapRealRatio = 242f/26f;
-    Material mat;
+    int MatID;
 
     // -----
     // Admin
@@ -64,7 +62,13 @@ public class FirstPersonContoller : NetworkBehaviour
         MainMenu = GameObject.FindGameObjectWithTag("MainMenu").GetComponentInChildren<CanvasGroup>();
         controller = GetComponent<CharacterController>();
         inputManager = InputManager.Instance;
-        mat = GetComponentInChildren<SkinnedMeshRenderer>().material;
+    }
+
+    public override void OnStartClient()
+    {
+        base.OnStartClient();
+        if(isLocalPlayer)
+            CommandSendPlayerInfos(isAdminUI.isOn);
     }
 
     private void Start()
@@ -73,15 +77,14 @@ public class FirstPersonContoller : NetworkBehaviour
         // synchronization
         // ---------------
         MainMenu.interactable = false;
-        SyncAllPlayers();
-        if(!isAdmin) isAdmin = isAdminUI.isOn;
         if(isLocalPlayer){
             LocalPlayerInit();
-            if(isAdmin){
+            if(isAdminUI.isOn){
                 InitAdmin();
                 InitAdminOnServer();
             }
         }
+        SyncAllPlayers();
     }
 
     void Update()
@@ -148,10 +151,13 @@ public class FirstPersonContoller : NetworkBehaviour
     }
 
     private void OnDestroy() {
-        if(miniMapSpot){
-            miniMapSpot.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0f);
-            miniMapSpot = null;
+        int matIndex;
+        if(GameManager.Instance.Dict_PlayerID_MatID.TryGetValue(netId, out matIndex)){
+            GameManager.Instance.MatIndexList.Add(matIndex);
+            GameManager.Instance.Dict_PlayerID_MatID.Remove(netId);
         }
+        if(isLocalPlayer)
+            CommandRemovePlayer(matIndex, netId);
     }
 
     void LocalPlayerInit(){
@@ -191,37 +197,6 @@ public class FirstPersonContoller : NetworkBehaviour
         InitAdmin();
     }
 
-    void SyncAllPlayers(){
-        List<GameObject> PlayerList = new List<GameObject>(GameObject.FindGameObjectsWithTag("Player"));
-        // remove admins
-        for(int i = 0; i < PlayerList.Count;){
-            if (PlayerList[i].transform.localScale != Vector3.one){
-                PlayerList.RemoveAt(i);
-            }else i++;
-        }
-        // players full
-        while(PlayerList.Count > GameManager.Instance.MatList.Count){
-            isAdmin = true;
-            PlayerList.RemoveAt(PlayerList.Count-1);
-        }
-        for (int i = 0; i < PlayerList.Count; i++){
-            // sync material and name
-            mat = GameManager.Instance.MatList[i];
-            string name = GameManager.Instance.NameList[i];
-            PlayerList[i].GetComponentInChildren<SkinnedMeshRenderer>().material = mat;
-            // connect corresponding spots on the minimap
-            GameManager.Instance.MinimapSpots[i].GetComponent<Image>().color = mat.GetColor("_BaseColor");
-            PlayerList[i].GetComponent<FirstPersonContoller>().miniMapSpot = GameManager.Instance.MinimapSpots[i];
-            PlayerList[i].GetComponent<FirstPersonContoller>().IdentityLable.text = name;
-            // UI update
-            if(PlayerList[i].GetComponent<FirstPersonContoller>().isLocalPlayer){
-                PlayerList[i].GetComponent<FirstPersonContoller>().IdentityColor.color = mat.GetColor("_BaseColor");
-                PlayerList[i].GetComponent<FirstPersonContoller>().IdentityText.text = name;
-            }
-        }
-        
-        GameManager.Instance.Players = PlayerList;
-    }
     void SyncMinimap(GameObject spot){
         Vector3 pos = spot.GetComponent<RectTransform>().anchoredPosition;
         pos.x = transform.position.z * MapRealRatio;
@@ -234,7 +209,21 @@ public class FirstPersonContoller : NetworkBehaviour
     // ---------------
     [Command]
     public void CommandShowKillerMap(int playerID, bool isShow){
-        GameManager.Instance.Players[playerID].GetComponent<FirstPersonContoller>().RPCShowKillerMap(isShow);
+        uint playerNetID = 0;
+        foreach (KeyValuePair<uint, int> pair in GameManager.Instance.Dict_PlayerID_MatID){
+            if(pair.Value == playerID){
+                playerNetID = pair.Key;
+                break;
+            }
+        }
+        if(playerNetID == 0) return;
+        foreach (GameObject playerObj in GameObject.FindGameObjectsWithTag("Player")){
+            FirstPersonContoller fc = playerObj.GetComponent<FirstPersonContoller>();
+            if(fc.netId == playerNetID){
+                fc.RPCShowKillerMap(isShow);
+                return;
+            }
+        }
     }
 
     [TargetRpc]
@@ -251,7 +240,7 @@ public class FirstPersonContoller : NetworkBehaviour
     }
     [ClientRpc]
     public void RPCShowLable(bool isShow){
-        foreach (GameObject player in GameManager.Instance.Players)
+        foreach (GameObject player in GameObject.FindGameObjectsWithTag("Player"))
             player.GetComponent<FirstPersonContoller>().IdentityLable.show = isShow;
     }
 
@@ -264,5 +253,86 @@ public class FirstPersonContoller : NetworkBehaviour
             UIgroup.alpha = 0;
             UIgroup.blocksRaycasts = false;
         }
+    }
+
+
+    public void SyncAllPlayers(){
+        List<GameObject> PlayerList = new List<GameObject>(GameObject.FindGameObjectsWithTag("Player"));
+        foreach (GameObject playerObject in PlayerList)
+        {
+            int matIndex;
+            if(GameManager.Instance.Dict_PlayerID_MatID.TryGetValue(playerObject.GetComponent<FirstPersonContoller>().netId, out matIndex)){
+                string name = GameManager.Instance.NameList[matIndex];
+                Material mat = GameManager.Instance.MatList[matIndex];
+                playerObject.GetComponentInChildren<SkinnedMeshRenderer>().material = mat;
+                GameManager.Instance.MinimapSpots[matIndex].GetComponent<Image>().color = mat.GetColor("_BaseColor");
+                playerObject.GetComponent<FirstPersonContoller>().miniMapSpot = GameManager.Instance.MinimapSpots[matIndex];
+                playerObject.GetComponent<FirstPersonContoller>().IdentityLable.text = name;
+                // UI update
+                if(playerObject.GetComponent<FirstPersonContoller>().isLocalPlayer){
+                    playerObject.GetComponent<FirstPersonContoller>().IdentityColor.color = mat.GetColor("_BaseColor");
+                    playerObject.GetComponent<FirstPersonContoller>().IdentityText.text = name;
+                }
+            }
+        }
+    }
+
+    [Command]
+    void CommandSendPlayerInfos(bool isAdmin){
+        foreach (KeyValuePair<uint, int> pair in GameManager.Instance.Dict_PlayerID_MatID){
+            RpcReceivePlayerInfos(pair.Key, pair.Value);
+        }
+
+        if(GameManager.Instance.MatIndexList.Count > 0 && !isAdmin){
+            int matIndex = GameManager.Instance.MatIndexList[0];
+            GameManager.Instance.MatIndexList.RemoveAt(0);
+            GameManager.Instance.Dict_PlayerID_MatID.Add(netId, matIndex);
+            RpcAddPlayer(matIndex, netId);
+        }
+    }
+
+    [TargetRpc]
+    void RpcReceivePlayerInfos(uint NetID, int MatID){
+        GameManager.Instance.MatIndexList.Remove(MatID);
+        GameManager.Instance.Dict_PlayerID_MatID.Add(NetID, MatID);
+    }
+
+
+    [Command]
+    void CommandAddPlayer(int matID, uint NetID){
+        if(!GameManager.Instance.Dict_PlayerID_MatID.ContainsKey(NetID)){
+            GameManager.Instance.Dict_PlayerID_MatID.Add(NetID, matID);
+            GameManager.Instance.MatIndexList.Remove(matID);
+        }
+        RpcAddPlayer(matID, NetID);
+    }
+
+    [ClientRpc]
+    void RpcAddPlayer(int matID, uint NetID){
+        if(!GameManager.Instance.Dict_PlayerID_MatID.ContainsKey(NetID)){
+            GameManager.Instance.Dict_PlayerID_MatID.Add(NetID, matID);
+            GameManager.Instance.MatIndexList.Remove(matID);
+        }
+        SyncAllPlayers();
+    }
+
+    [Command]
+    void CommandRemovePlayer(int matID, uint NetID){
+        if(!GameManager.Instance.MatIndexList.Contains(matID)){
+            GameManager.Instance.Dict_PlayerID_MatID.Remove(key: NetID);
+            GameManager.Instance.MatIndexList.Add(matID);
+            GameManager.Instance.MatIndexList.Sort();
+        }
+        RpcRemovePlayer(matID, NetID);
+    }
+
+    [ClientRpc]
+    void RpcRemovePlayer(int matID, uint NetID){
+        if(!GameManager.Instance.MatIndexList.Contains(matID)){
+            GameManager.Instance.Dict_PlayerID_MatID.Remove(key: NetID);
+            GameManager.Instance.MatIndexList.Add(matID);
+            GameManager.Instance.MatIndexList.Sort();
+        }
+        SyncAllPlayers();
     }
 }

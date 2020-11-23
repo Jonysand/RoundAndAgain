@@ -10,9 +10,11 @@ public class GameManager : NetworkBehaviour
     // Admin
     // -----
     // Map Control
+    public List<int> MatIndexList = new List<int>();
+    public Dictionary<uint, int> Dict_PlayerID_MatID = new Dictionary<uint, int>();
     public ToggleGroup ShowMapToggles = null;
     public void ShowMap(int playerID){
-        if(playerID < Players.Count)
+        if(playerID < Dict_PlayerID_MatID.Count)
             LocalPlayer.GetComponent<FirstPersonContoller>().CommandShowKillerMap(playerID, ShowMapToggles.AnyTogglesOn());
     }
 
@@ -33,9 +35,8 @@ public class GameManager : NetworkBehaviour
     float NightTimer = 0f;
     float NightDuration = 60f;
     [SyncVar]public int KillerID = 0;
-    public List<Material> MatList;
+    public List<Material> MatList = new List<Material>(6);
     public List<string> NameList;
-    public List<GameObject> Players;
     public GameObject LocalPlayer = null;
     public List<GameObject> MinimapSpots;
 
@@ -100,7 +101,4 @@ public class GameManager : NetworkBehaviour
         State = 0;
         atTableCount = 0;
     }
-
-    
-    
 }
