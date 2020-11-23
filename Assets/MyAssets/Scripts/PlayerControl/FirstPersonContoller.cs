@@ -195,31 +195,31 @@ public class FirstPersonContoller : NetworkBehaviour
         List<GameObject> PlayerList = new List<GameObject>(GameObject.FindGameObjectsWithTag("Player"));
         // remove admins
         for(int i = 0; i < PlayerList.Count;){
-            if (PlayerList[i].transform.localScale == Vector3.zero){
+            if (PlayerList[i].transform.localScale != Vector3.one){
                 PlayerList.RemoveAt(i);
             }else i++;
         }
         // players full
-        if(PlayerList.Count >= GameManager.Instance.MatList.Count) isAdmin = true;
-        else{
-            for (int i = 0; i < PlayerList.Count; i++){
-                // sync material and name
-                mat = GameManager.Instance.MatList[i];
-                string name = GameManager.Instance.NameList[i];
-                PlayerList[i].GetComponentInChildren<SkinnedMeshRenderer>().material = mat;
-                // connect corresponding spots on the minimap
-                GameManager.Instance.MinimapSpots[i].GetComponent<Image>().color = mat.GetColor("_BaseColor");
-                PlayerList[i].GetComponent<FirstPersonContoller>().miniMapSpot = GameManager.Instance.MinimapSpots[i];
-                // PlayerList[i].GetComponent<FirstPersonContoller>().IdentityLable.text = System.Char.ConvertFromUtf32((65+i)).ToString();
-                PlayerList[i].GetComponent<FirstPersonContoller>().IdentityLable.text = name;
-                // UI update
-                if(PlayerList[i].GetComponent<FirstPersonContoller>().isLocalPlayer){
-                    PlayerList[i].GetComponent<FirstPersonContoller>().IdentityColor.color = mat.GetColor("_BaseColor");
-                    // PlayerList[i].GetComponent<FirstPersonContoller>().IdentityText.text = System.Char.ConvertFromUtf32((65+i)).ToString();
-                    PlayerList[i].GetComponent<FirstPersonContoller>().IdentityText.text = name;
-                }
+        while(PlayerList.Count > GameManager.Instance.MatList.Count){
+            isAdmin = true;
+            PlayerList.RemoveAt(PlayerList.Count-1);
+        }
+        for (int i = 0; i < PlayerList.Count; i++){
+            // sync material and name
+            mat = GameManager.Instance.MatList[i];
+            string name = GameManager.Instance.NameList[i];
+            PlayerList[i].GetComponentInChildren<SkinnedMeshRenderer>().material = mat;
+            // connect corresponding spots on the minimap
+            GameManager.Instance.MinimapSpots[i].GetComponent<Image>().color = mat.GetColor("_BaseColor");
+            PlayerList[i].GetComponent<FirstPersonContoller>().miniMapSpot = GameManager.Instance.MinimapSpots[i];
+            PlayerList[i].GetComponent<FirstPersonContoller>().IdentityLable.text = name;
+            // UI update
+            if(PlayerList[i].GetComponent<FirstPersonContoller>().isLocalPlayer){
+                PlayerList[i].GetComponent<FirstPersonContoller>().IdentityColor.color = mat.GetColor("_BaseColor");
+                PlayerList[i].GetComponent<FirstPersonContoller>().IdentityText.text = name;
             }
         }
+        
         GameManager.Instance.Players = PlayerList;
     }
     void SyncMinimap(GameObject spot){
