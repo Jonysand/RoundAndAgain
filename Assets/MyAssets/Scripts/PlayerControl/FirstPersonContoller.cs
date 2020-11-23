@@ -84,7 +84,6 @@ public class FirstPersonContoller : NetworkBehaviour
                 InitAdminOnServer();
             }
         }
-        SyncAllPlayers();
     }
 
     void Update()
@@ -295,6 +294,7 @@ public class FirstPersonContoller : NetworkBehaviour
     void RpcReceivePlayerInfos(uint NetID, int MatID){
         GameManager.Instance.MatIndexList.Remove(MatID);
         GameManager.Instance.Dict_PlayerID_MatID.Add(NetID, MatID);
+        SyncAllPlayers();
     }
 
 

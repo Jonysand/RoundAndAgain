@@ -791,7 +791,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: A
+  m_Text: Yellow
 --- !u!222 &83542891
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1544,7 +1544,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: D
+  m_Text: Blue
 --- !u!222 &418710515
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -4149,7 +4149,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: E
+  m_Text: Purple
 --- !u!222 &1281621950
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -5182,6 +5182,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0.1
+  MatIndexList: 000000000100000002000000030000000400000005000000
   ShowMapToggles: {fileID: 763159504}
   ShowLableToggle: {fileID: 998102349}
   KillerID: 0
@@ -5199,7 +5200,6 @@ MonoBehaviour:
   - Blue
   - Purple
   - White
-  Players: []
   LocalPlayer: {fileID: 0}
   MinimapSpots:
   - {fileID: 45368981}
@@ -6140,7 +6140,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: F
+  m_Text: White
 --- !u!222 &1812159254
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -7075,7 +7075,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: C
+  m_Text: Green
 --- !u!222 &2048771624
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -7391,7 +7391,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: B
+  m_Text: Orange
 --- !u!222 &2094479777
 CanvasRenderer:
   m_ObjectHideFlags: 0
