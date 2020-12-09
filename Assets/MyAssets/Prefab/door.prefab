@@ -212,7 +212,7 @@ MonoBehaviour:
   multipleUse: 0
   isInteractable: 1
   tooltipMessage: Press 'E' to open/close
-  openAngle: 120
+  openAngle: -120
 --- !u!114 &7949844320083561588
 MonoBehaviour:
   m_ObjectHideFlags: 0

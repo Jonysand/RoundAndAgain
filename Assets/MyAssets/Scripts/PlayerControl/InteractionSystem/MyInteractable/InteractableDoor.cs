@@ -6,7 +6,7 @@ using Mirror;
 public class InteractableDoor : InteractableBase
 {
     bool opened = false;
-    [SerializeField]float openAngle = 120f;
+    [SerializeField]float openAngle = -120f;
 
     public override void OnInteract(){
         base.OnInteract();
